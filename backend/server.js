@@ -8,19 +8,32 @@ const { Server } = require("socket.io");
 const generateResponse = require("./src/service/ai.service");
 
 const httpServer = createServer(app);
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://YOUR-FRONTEND.onrender.com",
+];
+
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://ai-chatbot-k6w9.onrender.com",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST"],
   },
 });
 
 const chatHistory = [];
 
 io.on("connection", (socket) => {
-  console.log("Connection establish successfull");
+  console.log("✅ Client connected");
 
   socket.on("disconnect", () => {
-    console.log("A user is disconnected");
+    console.log("❌ Client disconnected");
   });
 
   socket.on("ai-message", async (data) => {
@@ -31,20 +44,20 @@ io.on("connection", (socket) => {
       });
 
       const response = await generateResponse(chatHistory);
-
       chatHistory.push({
         role: "assistant",
         content: response,
       });
-
       socket.emit("ai-message-response", response);
     } catch (error) {
-      console.error(error);
-      socket.emit("ai-message-response", "AI error");
+      console.error("🔥 AI Error:", error.message);
+      socket.emit("ai-message-response", "Server error occurred");
     }
   });
 });
 
-httpServer.listen(3000, () => {
-  console.log("Server is running on port 3000:");
+const PORT = process.env.PORT || 3000;
+
+httpServer.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
