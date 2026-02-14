@@ -11,7 +11,7 @@ const httpServer = createServer(app);
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://YOUR-FRONTEND.onrender.com",
+  "https://ai-chatbot-1-0ezp.onrender.com",
 ];
 
 const io = new Server(httpServer, {
