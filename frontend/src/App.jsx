@@ -44,7 +44,7 @@ export default function App() {
   }, [messages]);
 
   useEffect(() => {
-    const socketInstance = io("http://localhost:3000");
+    const socketInstance = io("https://ai-chatbot-k6w9.onrender.com");
     setSocket(socketInstance);
 
     socketInstance.on("ai-message-response", (response) => {
